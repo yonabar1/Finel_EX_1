@@ -4,28 +4,41 @@ pipeline {
     agent any
     environment {
 
-        DOCKER_HUB_USERNAME = "BAR"
-        DOCKER_HUB_PASSWORD = ""
-        DOCKERHUB_REPO_NAME = ""
-
+        DOCKER_HUB_USERNAME = "bjonathanb"
+        DOCKER_HUB_PASSWORD = "68131095"
+        DOCKERHUB_REPO_NAME = "bjonathanb/final-ex-1"
     }
     stages {
-        stage('build final artifact') {
-            git url: 'https://github.com/zivkashtan/course.git'
+        stage('code clone') {
+            git 'https://github.com/yonabar1/Finel_EX_1.git'
+        }
+        stage('build') {
             sh 'mvn package'
-
-            writeFile file: "Dockerfile", text: """
-                FROM tomcat:8.0.20-jre8
-                COPY ./web/target/*.war /usr/local/tomcat/webapps/
+            sh 'docker build -t Finel_EX_1:${env.BUILD_ID} .'
+            sh """
+              docker login -u ${DOCKER_HUB_USERNAME} -p ${DOCKER_HUB_PASSWORD}
+              docker tag ${DOCKERHUB_REPO_NAME}:${env.BUILD_ID}
+              docker push ${DOCKERHUB_REPO_NAME}:${env.BUILD_ID}
             """
-            sh "docker build -t snscaimito/ledger-service:${env.BUILD_ID} ."
-
+        }
+        stage('test') {
+            sh 'echo "blabla"'
+        }
+        stage('reles') {
             sh """
               docker login -u ${DOCKER_HUB_USERNAME} -p ${DOCKER_HUB_PASSWORD}
               docker tag ${DOCKERHUB_REPO_NAME}:latest
               docker push ${DOCKERHUB_REPO_NAME}:latest
             """
-            sh "docker push ${DOCKERHUB_REPO_NAME}:latest"
+        }
+        stage('deploy(legacy)') {
+        sh 'ansible-playbook deploy/war-deploy-playbook.yaml -i deploy/hosts'
+        }
+        stage('deploy (modern)') {
+            sh 'kubectl apply -f deploy/k8s-deployment.yaml'
+        }
+      
+     latest"
         }
     }
     post {
