@@ -5,7 +5,7 @@ pipeline {
     environment {
 
         DOCKER_HUB_USERNAME = "bjonathanb"
-        DOCKER_HUB_PASSWORD = "68131095"
+        DOCKER_HUB_PASSWORD = ""
         DOCKERHUB_REPO_NAME = "bjonathanb/final-ex-1"
     }
     stages {
