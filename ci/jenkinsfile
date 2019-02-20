@@ -12,22 +12,27 @@ pipeline {
         stage('code clone') {
             git 'https://github.com/yonabar1/Finel_EX_1.git'
         }
-        stage('build') {
-            sh 'mvn package'
-            sh 'docker build -t Finel_EX_1:${env.BUILD_ID} .'
-            sh """
+        stage('BUILD') {
+            steps {
+                sh 'mvn package'
+                sh 'docker build -t FINAL_X_1:${env.BUILD_ID} .'
+                sh """
               docker login -u ${DOCKER_HUB_USERNAME} -p ${DOCKER_HUB_PASSWORD}
-              docker tag ${DOCKERHUB_REPO_NAME}:${env.BUILD_ID}
+              docker tag FINAL_X_1:${env.BUILD_ID} ${DOCKERHUB_REPO_NAME}:${env.BUILD_ID}
               docker push ${DOCKERHUB_REPO_NAME}:${env.BUILD_ID}
             """
+            }
         }
-        stage('test') {
-            sh 'echo "blabla"'
+        stage('TEST') {
+            steps {
+                sh 'echo "blabla"'
+            }
         }
-        stage('reles') {
-            sh """
+        stage('RELEASE') {
+            steps {
+                sh """
               docker login -u ${DOCKER_HUB_USERNAME} -p ${DOCKER_HUB_PASSWORD}
-              docker tag ${DOCKERHUB_REPO_NAME}:latest
+              docker tag ${DOCKERHUB_REPO_NAME}:${env.BUILD_ID} ${DOCKERHUB_REPO_NAME}:latest
               docker push ${DOCKERHUB_REPO_NAME}:latest
             """
         }
